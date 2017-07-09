@@ -110,17 +110,23 @@ int main()
 				noisy_observations.push_back(obs);
         	}
 
-		  // Update the weights and resample
+		  // UpdateLandmarkObs the weights and resample
+      cout << "before" << endl;
 		  pf.updateWeights(sensor_range, sigma_landmark, noisy_observations, map);
+      cout << "between" << endl;
 		  pf.resample();
+      cout << "after" << endl;
 
 		  // Calculate and output the average weighted error of the particle filter over all time steps so far.
 		  vector<Particle> particles = pf.particles;
+      //cout << particles[0].x << endl;
 		  int num_particles = particles.size();
 		  double highest_weight = -1.0;
 		  Particle best_particle;
 		  double weight_sum = 0.0;
 		  for (int i = 0; i < num_particles; ++i) {
+        //Particle particle = particles[i];
+        //cout << "Particle\tX:" << particle.x << "\tY: " << particle.y << endl;
 			if (particles[i].weight > highest_weight) {
 				highest_weight = particles[i].weight;
 				best_particle = particles[i];
