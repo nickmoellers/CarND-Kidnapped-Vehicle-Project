@@ -28,6 +28,9 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
 
 	default_random_engine gen;
 
+
+	particles.reserve(num_particles);
+
 	double std_x = std[0];
 	double std_y = std[1];
 	double std_theta = std[2];
@@ -182,7 +185,8 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			}
 			
 			//Add the closest observation to the predictions
-			predictions.push_back( min_observation );
+			//predictions.push_back( min_observation ); Causing my crash?? no
+			predictions[j] = min_observation;
 			
 		}
 
@@ -241,7 +245,8 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			particles[i].weight=1.0/num_particles;
 		}*/
 		particles[i].weight/=W;
-		weights.push_back(particles[i].weight);
+		weights[i] = particles[i].weight;
+		//weights.push_back(particles[i].weight); Causing my crash??? no
 	}
 
 	cout << "End updateWeights" << endl;
@@ -256,9 +261,9 @@ void ParticleFilter::resample() {
 	cout << "Begin resample" << endl;
 
 	//cout << num_particles << endl;
-	for( int i = 0; i < num_particles; i++ ) {
+	//for( int i = 0; i < num_particles; i++ ) {
 		//cout << "weights[" << i << "] = " << weights[i] << endl;
-	}
+	//}
 
 	//Initialize std::discrete_distribution
 	default_random_engine gen;
