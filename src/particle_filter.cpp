@@ -118,7 +118,7 @@ void ParticleFilter::prediction(double delta_t, double std_pos[],
 }
 
 //Nearest Neighbor
-void ParticleFilter::dataAssociation(std::vector<LandmarkObs> predicted, 
+/*void ParticleFilter::dataAssociation(std::vector<LandmarkObs> predicted, 
 	std::vector<LandmarkObs>& observations) {
 	// TODO: Find the predicted measurement that is closest to each observed measurement and assign the 
 	//   observed measurement to this particular landmark.
@@ -126,8 +126,7 @@ void ParticleFilter::dataAssociation(std::vector<LandmarkObs> predicted,
 	//   implement this method and use it as a helper during the updateWeights phase.
 
 	
-
-}
+}*/
 
 void ParticleFilter::updateWeights(double sensor_range, double std_landmark[], 
 		std::vector<LandmarkObs> observations, Map map_landmarks) {
@@ -161,6 +160,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 		std::vector<LandmarkObs> predictions;
 		predictions.clear();
 		predictions.reserve(observations.size());
+
 
 		//For every observation,
 		for( int j = 0 ; j < observations.size() ; j++ ) {
@@ -203,11 +203,18 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			////cout << "hey" << predictions.size() << endl;
 			//Add the closest observation to the predictions
 			predictions.push_back( min_observation );
-			
 		}
+		//particles[i].associations = predictions;
+
 
 		//Initialize Particle's weight with the multiplicative identity
 		particles[i].weight = 1.0;
+
+		particles[i].associations.clear();
+		particles[i].associations.reserve(predictions.size());
+
+
+		//cout << predictions.size() << endl;
 
 		//Iterate through each predicted observation / landmark pair
 		for( int j = 0; j < predictions.size() ; j++) {
@@ -219,6 +226,8 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			//Technically I should iterate and esnure prediciton.id == landmark.id_i
 			//But this works.
 			Map::single_landmark_s landmark = map_landmarks.landmark_list[prediction.id-1];
+
+			particles[i].associations.push_back( prediction.id-1 );
 			//cout << "\t" << landmark.id_i << " " << prediction.id << endl;
 			
 			//Calculate the weight.
@@ -241,6 +250,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			particles[i].weight *= observation_weight;
 
 		}
+
 
 	////cout << k++ << endl; //5
 		//Add the particles total weight to our running sum.
@@ -283,7 +293,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 
 }
 
-void ParticleFilter::resample() {
+/*void ParticleFilter::resample() {
 	// TODO: Resample particles with replacement with probability proportional to their weight. 
 	// NOTE: You may find std::discrete_distribution helpful here.
 	//   http://en.cppreference.com/w/cpp/numeric/random/discrete_distribution
@@ -298,9 +308,6 @@ void ParticleFilter::resample() {
 	//Resamping the particles
 	std::vector<Particle> resampled_particles;
 
-	/*for( int i = 0 ; i < num_particles ; i++ ) {
-		cout << "particles[" << i << "].weight = " << particles[i].weight << endl;
-	}*/
 
 	for( int i = 0; i < num_particles; i++ ) {
 		beta += static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
@@ -315,12 +322,6 @@ void ParticleFilter::resample() {
 	particles = resampled_particles;
 
 	for( int i = 0; i < num_particles; i++ ) {
-		/*if( W > 0.001 ) { // must need more zeros?
-			particles[i].weight/=W;
-		} else { 
-			////////cout << "Error: all weights were 0" << endl;
-			particles[i].weight=1.0/num_particles;
-		}*/
 		////cout << i << endl;
 		particles[i].weight/=W;
 		////cout << "k..?" << endl;
@@ -328,24 +329,27 @@ void ParticleFilter::resample() {
 		//weights.push_back(particles[i].weight); Causing my crash??? no
 	}
 
-	/*for( int i = 0 ; i < num_particles ; i++ ) {
-		//particles[i].weight = weights[i];
-		cout << "particles[" << i << "].weight = " << particles[i].weight << endl;
-	}*/
 
 	////cout << "End resample" << endl;
 
-}
+}*/
 
-/*
+
 void ParticleFilter::resample() {
 	// TODO: Resample particles with replacement with probability proportional to their weight. 
 	// NOTE: You may find std::discrete_distribution helpful here.
 	//   http://en.cppreference.com/w/cpp/numeric/random/discrete_distribution
 
+	weights.clear();
+	weights.reserve(num_particles);
+
 	for( int i = 0 ; i < num_particles ; i++ ) {
-		cout << "particles[" << i << "].weight = " << particles[i].weight << " == " << weights[i] << endl;
+		//cout << i << " " << weights[i] << endl;
+		weights[i] = particles[i].weight;
 	}
+
+	// 	cout << "particles[" << i << "].weight = " << particles[i].weight << " == " << weights[i] << endl;
+	// }
 
 	//Initialize std::discrete_distribution
 	default_random_engine gen;
@@ -353,23 +357,26 @@ void ParticleFilter::resample() {
 
 	//Resamping the particles
 	std::vector<Particle> resampled_particles;
+	resampled_particles.clear();
+	resampled_particles.reserve(num_particles);
+
 	for( int i = 0; i < num_particles; i++ ) {
 		int j = distribution(gen);
-		cout << i << " " << j << endl;
+		//cout << i << " " << j << endl;
 		Particle random_particle = particles[j];
 		resampled_particles.push_back(random_particle); 
-		weights[i] = random_particle.weight;
+		//weights[i] = random_particle.weight;
 	}
 	particles = resampled_particles;
 
-	for( int i = 0 ; i < num_particles ; i++ ) {
-		//particles[i].weight = weights[i];
-		cout << "particles[" << i << "].weight = " << particles[i].weight << " == " << weights[i] << endl;
-	}
+	// for( int i = 0 ; i < num_particles ; i++ ) {
+	// 	//particles[i].weight = weights[i];
+	// 	cout << "particles[" << i << "].weight = " << particles[i].weight << " == " << weights[i] << endl;
+	// //}
 
 	////cout << "End resample" << endl;
 
-}*/
+}
 
 Particle ParticleFilter::SetAssociations(Particle particle, std::vector<int> associations, std::vector<double> sense_x, std::vector<double> sense_y)
 {
