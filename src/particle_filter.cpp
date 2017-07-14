@@ -28,7 +28,7 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
 
 	////cout << "begin init" << endl;
 
-	num_particles = 1000; //100 //maybe 1000?
+	num_particles = 1; //100 //maybe 1000?
 
 	default_random_engine gen;
 
@@ -128,6 +128,7 @@ void ParticleFilter::prediction(double delta_t, double std_pos[],
 	
 }*/
 
+
 void ParticleFilter::updateWeights(double sensor_range, double std_landmark[], 
 		std::vector<LandmarkObs> observations, Map map_landmarks) {
 	// TODO: Update the weights of each particle using a mult-variate Gaussian distribution. You can read
@@ -153,9 +154,18 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 	//For each particle
 	for( int i = 0; i<num_particles; i++ ) {
 
-		//cout << "Particle " << i << "/" << num_particles << endl;
-
 		Particle particle = particles[i];
+
+		cout << endl << endl;
+		cout << "particles[" << i << "]:" << endl;
+		//cout << "\tid" << particles[i].id ;
+		cout << "x: " << particles[i].x ;
+		cout << "\ty: " << particles[i].y ;
+		cout << "\ttheta: " << particles[i].theta ;
+		cout << "\tweight: " << particles[i].weight << endl;
+
+		particles[i].associations.clear();
+		particles[i].associations.reserve(observations.size());
 	
 		std::vector<LandmarkObs> predictions;
 		predictions.clear();
@@ -165,44 +175,79 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 		//For every observation,
 		for( int j = 0 ; j < observations.size() ; j++ ) {
 
-			//cout << "observation " << j << "/" << observations.size() << endl;
-
-
-
-			//Transform observation to map coordinate system
 			LandmarkObs observation = observations[j];
-			observation.x = particle.x + observation.x*cos(particle.theta) - observation.y*sin(particle.theta);
-			observation.y = particle.y + observation.x*sin(particle.theta) + observation.y*cos(particle.theta);
+
+			cout << endl;
+			cout << "\tobservations[" << j << "]:" << endl;
+			cout << "\tpre transformation:" ;
+			cout << "\tx: " << observation.x ;
+			cout << "\ty: " << observation.y << endl;
+			
+			//Transform observation to map coordinate system
+			double cosine = cos(particle.theta);
+			double sine = sin(particle.theta);
+
+			observation.x = observation.x*cosine - observation.y*sine + particle.x;
+			observation.y = observation.x*sine + observation.y*cosine + particle.y;
+
+			cout << "\tpost transformation:" ;			
+			cout << "\tx: " << observation.x ;
+			cout << "\ty: " << observation.y << endl;
 			
 			//Declare variables to hold the closest observation and its distance
 			LandmarkObs min_observation;
 			double min_dist = std::numeric_limits<double>::max(); //sensor_range;
 
 			//Compare each observation to each landmark
-			for( Map::single_landmark_s landmark : map_landmarks.landmark_list ) {
+			int num_landmarks = map_landmarks.landmark_list.size();
+			for( int l = 0 ; l < num_landmarks ; l ++ ) {
+
+					Map::single_landmark_s landmark = map_landmarks.landmark_list[l];
+			//for( Map::single_landmark_s landmark : map_landmarks.landmark_list ) {
+					//cout << endl;		
+					
+					//cout << "\tid=" << landmark.id_i ;
+					//cout << "\t\tx=" << landmark.x_f ;
+					//cout << "\ty=" << landmark.y_f ;
+					
+					//cout << "\tdist=" << observation_distance << endl;
+				
 
 				//Get the distance
 				double observation_distance = dist( landmark.x_f, landmark.y_f, observation.x, observation.y);
-				
-				//Test to see if this landmark is the new closest and associate it if so.
-				if( observation_distance < min_dist ) {
 
-					//This is the new min
-					min_dist = observation_distance;
+				if ( observation_distance < sensor_range ) {
+					//cout << endl;		
+					//cout << "\t\tlandmark [" << l << "]:" << endl;
+					cout << "\t\tlandmark [" << l << "]:" << endl;
+					cout << "\t\tid=" << landmark.id_i ;
+					cout << "\tx=" << landmark.x_f ;
+					cout << "\ty=" << landmark.y_f ;
+					
+					cout << "\tdist=" << observation_distance << endl;
 
-					//Associate the prediction and save the min observation
-					observation.id = landmark.id_i;
-					min_observation = observation;
+					//Test to see if this landmark is the new closest and associate it if so.
+					if( observation_distance < min_dist ) {
 
-					//Not sure if this matters
-					observations[j].id = landmark.id_i;
+						//This is the new min
+						min_dist = observation_distance;
 
+						//Associate the prediction and save the min observation
+						observation.id = l;
+						min_observation = observation;
+
+						//Not sure if this matters
+						observations[j].id = l;
+
+					}
 				}
 
 			}
 			////cout << "hey" << predictions.size() << endl;
 			//Add the closest observation to the predictions
 			predictions.push_back( min_observation );
+
+			particles[i].associations.push_back( min_observation.id );
 		}
 		//particles[i].associations = predictions;
 
@@ -210,8 +255,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 		//Initialize Particle's weight with the multiplicative identity
 		particles[i].weight = 1.0;
 
-		particles[i].associations.clear();
-		particles[i].associations.reserve(predictions.size());
+		
 
 
 		//cout << predictions.size() << endl;
@@ -222,13 +266,25 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			//Get the observation (already in map coords)
 			LandmarkObs prediction = predictions[j];
 
+			cout << endl;
+			cout << "\tprediction[" << j << "]:" << endl;
+			cout << "\tpost transformation:" ;	
+			cout << "\tid: " << prediction.id ;		
+			cout << "\tx: " << prediction.x ;
+			cout << "\ty: " << prediction.y << endl;
+
 			//And its associated landmark
 			//Technically I should iterate and esnure prediciton.id == landmark.id_i
 			//But this works.
-			Map::single_landmark_s landmark = map_landmarks.landmark_list[prediction.id-1];
+			Map::single_landmark_s landmark = map_landmarks.landmark_list[prediction.id];
 
-			particles[i].associations.push_back( prediction.id-1 );
-			//cout << "\t" << landmark.id_i << " " << prediction.id << endl;
+			cout << endl;
+			cout << "\tlandmark [" << prediction.id << "]:" << endl;
+			cout << "\tid=" << landmark.id_i ;
+			cout << "\tx=" << landmark.x_f ;
+			cout << "\ty=" << landmark.y_f << endl;
+
+			//cout << "\t" << landmark.id_i << " " << prediction.id << " " << particles[i].associations[j];
 			
 			//Calculate the weight.
 			double delta_x = prediction.x - landmark.x_f; 
@@ -244,10 +300,12 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			double constant = 1/(2*M_PI*std_x*std_y);
 			////////cout << "constant " << constant << endl;
 			double observation_weight = constant * exponent;
-			//cout << "observation_weight " << observation_weight << endl;
+			cout << endl;
+			cout << "\tobservation_weight: " << observation_weight;
 
 			//Multiply it into the particle's total weight.
 			particles[i].weight *= observation_weight;
+			cout << "\tparticle weight: " << particles[i].weight << endl;
 
 		}
 
@@ -258,7 +316,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 
 	////cout << k++ << endl; //6
 
-		////cout << particles[i].weight << endl;
+		//cout << particles[i].weight << endl;
 		
 	}
 
@@ -268,27 +326,25 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 	///weights.clear();
 	//weights.reserve(num_particles);
 ////cout << "huh?" << endl;
-	//Normalize Weights and repopulate weights array	
+	//Normalize Weights and repopulate weights array
+	
 	for( int i = 0; i < num_particles; i++ ) {
-		/*if( W > 0.001 ) { // must need more zeros?
+		/*if( W > 0.0001 ) {	//might need more zeros?
 			particles[i].weight/=W;
 		} else { 
-			////////cout << "Error: all weights were 0" << endl;
+			cout << "Error: all weights were 0" << endl;
 			particles[i].weight=1.0/num_particles;
 		}*/
-		////cout << i << endl;
 		particles[i].weight/=W;
-		////cout << "k..?" << endl;
-		//weights[i] = particles[i].weight;
-		//weights.push_back(particles[i].weight); Causing my crash??? no
+		//cout << i << endl << particles[i].weight << endl;
 	}
 
 	//
 	/*for( int i = 0 ; i < num_particles ; i++ ) {
 		//sum+= particles[i].weight;
-		cout << "particles[" << i << "].weight = " << particles[i].weight << endl; // << " == " << weights[i] << endl;
+		//cout << "particles[" << i << "].weight = " << particles[i].weight << endl; // << " == " << weights[i] << endl;
 	}*/
-	//cout << sum << endl;*/
+	////cout << sum << endl;*/
 	////cout << "End updateWeights" << endl;
 
 }
@@ -348,7 +404,7 @@ void ParticleFilter::resample() {
 		weights[i] = particles[i].weight;
 	}
 
-	// 	cout << "particles[" << i << "].weight = " << particles[i].weight << " == " << weights[i] << endl;
+	// 	//cout << "particles[" << i << "].weight = " << particles[i].weight << " == " << weights[i] << endl;
 	// }
 
 	//Initialize std::discrete_distribution
@@ -371,7 +427,7 @@ void ParticleFilter::resample() {
 
 	// for( int i = 0 ; i < num_particles ; i++ ) {
 	// 	//particles[i].weight = weights[i];
-	// 	cout << "particles[" << i << "].weight = " << particles[i].weight << " == " << weights[i] << endl;
+	// 	//cout << "particles[" << i << "].weight = " << particles[i].weight << " == " << weights[i] << endl;
 	// //}
 
 	////cout << "End resample" << endl;
