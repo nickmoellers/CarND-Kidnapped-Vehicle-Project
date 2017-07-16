@@ -111,11 +111,10 @@ int main()
         	}
 
 		  // UpdateLandmarkObs the weights and resample
-      cout << "before" << endl;
 		  pf.updateWeights(sensor_range, sigma_landmark, noisy_observations, map);
-      cout << "between" << endl;
+      int foo = 0;
 		  pf.resample();
-      cout << "after" << endl;
+      int bar = 0;
 
 		  // Calculate and output the average weighted error of the particle filter over all time steps so far.
 		  vector<Particle> particles = pf.particles;
@@ -127,6 +126,7 @@ int main()
 		  for (int i = 0; i < num_particles; ++i) {
         //Particle particle = particles[i];
         //cout << "Particle\tX:" << particle.x << "\tY: " << particle.y << endl;
+          cout << "particles[" << i << "].associations = " << pf.getAssociations(particles[i]) << endl;
 			if (particles[i].weight > highest_weight) {
 				highest_weight = particles[i].weight;
 				best_particle = particles[i];
@@ -141,6 +141,7 @@ int main()
           msgJson["best_particle_y"] = best_particle.y;
           msgJson["best_particle_theta"] = best_particle.theta;
 
+          cout << "best particle.associations = " << pf.getAssociations(best_particle) << endl;
           //Optional message data used for debugging particle's sensing and associations
           msgJson["best_particle_associations"] = pf.getAssociations(best_particle);
           msgJson["best_particle_sense_x"] = pf.getSenseX(best_particle);
@@ -175,18 +176,18 @@ int main()
   });
 
   h.onConnection([&h](uWS::WebSocket<uWS::SERVER> ws, uWS::HttpRequest req) {
-    std::cout << "Connected!!!" << std::endl;
+    std::cerr << "Connected!!!" << std::endl;
   });
 
   h.onDisconnection([&h](uWS::WebSocket<uWS::SERVER> ws, int code, char *message, size_t length) {
     ws.close();
-    std::cout << "Disconnected" << std::endl;
+    std::cerr << "Disconnected" << std::endl;
   });
 
   int port = 4567;
   if (h.listen(port))
   {
-    std::cout << "Listening to port " << port << std::endl;
+    std::cerr << "Listening to port " << port << std::endl;
   }
   else
   {
