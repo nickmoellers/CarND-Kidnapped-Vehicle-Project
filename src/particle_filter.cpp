@@ -354,7 +354,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 
 	////cout << k++ << endl; //5
 		//Add the particles total weight to our running sum.
-		W+=particles[i].weight;
+		//W+=particles[i].weight;
 
 	////cout << k++ << endl; //6
 
@@ -369,19 +369,19 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 	//weights.reserve(num_particles);
 ////cout << "huh?" << endl;
 	//Normalize Weights and repopulate weights array
-	cout << "NORMALIZED" << endl;
-	for( int i = 0; i < num_particles; i++ ) {
+	//cout << "NORMALIZED" << endl;
+	//for( int i = 0; i < num_particles; i++ ) {
 		/*if( W > 0.0001 ) {	//might need more zeros?
 			particles[i].weight/=W;
 		} else { 
 			cout << "Error: all weights were 0" << endl;
 			particles[i].weight=1.0/num_particles;
 		}*/
-		cout << "\tparticles[" << i<< "].weight = " << particles[i].weight; 
-		particles[i].weight/=W;
-		cout << "\tnormalized = " << particles[i].weight << endl; 
+	// 	cout << "\tparticles[" << i<< "].weight = " << particles[i].weight; 
+	// 	particles[i].weight/=W;
+	// 	cout << "\tnormalized = " << particles[i].weight << endl; 
 
-	}
+	// }
 
 	//
 	/*for( int i = 0 ; i < num_particles ; i++ ) {
