@@ -28,7 +28,7 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
 
 	////cout << "begin init" << endl;
 
-	num_particles = 5; //100 //maybe 1000?
+	num_particles = 5; //100; //maybe 1000?
 
 	default_random_engine gen;
 
@@ -285,9 +285,6 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 		//Initialize Particle's weight with the multiplicative identity
 		particles[i].weight = 1.0;
 
-		
-
-
 		//cout << predictions.size() << endl;
 		particles[i].associations.clear();
 		particles[i].sense_x.clear();
@@ -348,92 +345,10 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 		}
 
 		cout << "\tparticle weight: " << particles[i].weight << endl;
-
-	
-
-
-	////cout << k++ << endl; //5
-		//Add the particles total weight to our running sum.
-		//W+=particles[i].weight;
-
-	////cout << k++ << endl; //6
-
-		//cout << particles[i].weight << endl;
 		
 	}
 
-
-	////cout << "what?" << endl;
-	//Clear old weights
-	///weights.clear();
-	//weights.reserve(num_particles);
-////cout << "huh?" << endl;
-	//Normalize Weights and repopulate weights array
-	//cout << "NORMALIZED" << endl;
-	//for( int i = 0; i < num_particles; i++ ) {
-		/*if( W > 0.0001 ) {	//might need more zeros?
-			particles[i].weight/=W;
-		} else { 
-			cout << "Error: all weights were 0" << endl;
-			particles[i].weight=1.0/num_particles;
-		}*/
-	// 	cout << "\tparticles[" << i<< "].weight = " << particles[i].weight; 
-	// 	particles[i].weight/=W;
-	// 	cout << "\tnormalized = " << particles[i].weight << endl; 
-
-	// }
-
-	//
-	/*for( int i = 0 ; i < num_particles ; i++ ) {
-		//sum+= particles[i].weight;
-		//cout << "particles[" << i << "].weight = " << particles[i].weight << endl; // << " == " << weights[i] << endl;
-	}*/
-	////cout << sum << endl;*/
-	////cout << "End updateWeights" << endl;
-
 }
-
-/*void ParticleFilter::resample() {
-	// TODO: Resample particles with replacement with probability proportional to their weight. 
-	// NOTE: You may find std::discrete_distribution helpful here.
-	//   http://en.cppreference.com/w/cpp/numeric/random/discrete_distribution
-
-	default_random_engine gen;
-
-	double beta = 0.0;
-	int index = 0;
-
-	double W = 0.0;
-
-	//Resamping the particles
-	std::vector<Particle> resampled_particles;
-
-
-	for( int i = 0; i < num_particles; i++ ) {
-		beta += static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-		while( particles[index].weight < beta ) {
-			beta -= particles[index++].weight;
-			index %= num_particles;
-		}
-		resampled_particles.push_back(particles[index]);
-		W+=particles[index].weight;
-		//weights[i] = particles[index].weight;
-	}
-	particles = resampled_particles;
-
-	for( int i = 0; i < num_particles; i++ ) {
-		////cout << i << endl;
-		particles[i].weight/=W;
-		////cout << "k..?" << endl;
-		//weights[i] = particles[i].weight;
-		//weights.push_back(particles[i].weight); Causing my crash??? no
-	}
-
-
-	////cout << "End resample" << endl;
-
-}*/
-
 
 void ParticleFilter::resample() {
 	// TODO: Resample particles with replacement with probability proportional to their weight. 
@@ -447,9 +362,6 @@ void ParticleFilter::resample() {
 		//cout << i << " " << weights[i] << endl;
 		weights.push_back( particles[i].weight );
 	}
-
-	// 	//cout << "particles[" << i << "].weight = " << particles[i].weight << " == " << weights[i] << endl;
-	// }
 
 	//Initialize std::discrete_distribution
 	default_random_engine gen;
