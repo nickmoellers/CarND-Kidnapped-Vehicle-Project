@@ -26,7 +26,7 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
 	// Add random Gaussian noise to each particle.
 	// NOTE: Consult particle_filter.h for more information about this method (and others in this file).
 
-	////cout << "begin init" << endl;
+	//////cout << "begin init" << endl;
 
 	num_particles = 5; //100; //maybe 1000?
 
@@ -63,7 +63,7 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
 	is_initialized = true;
 
 
-	////cout << "end init" << endl;
+	//////cout << "end init" << endl;
 }
 
 void ParticleFilter::prediction(double delta_t, double std_pos[], 
@@ -80,16 +80,16 @@ void ParticleFilter::prediction(double delta_t, double std_pos[],
 	double std_theta = std_pos[2];
 
 
-	cout << "prediction( ";
-	cout << delta_t << ", [" << std_x << ", " << std_y << ", " << std_theta << "], ";
-	cout << velocity << ", " << yaw_rate << " )" << endl;
+	//cout << "prediction( ";
+	//cout << delta_t << ", [" << std_x << ", " << std_y << ", " << std_theta << "], ";
+	//cout << velocity << ", " << yaw_rate << " )" << endl;
 
-	cout << num_particles << endl;
+	//cout << num_particles << endl;
 
 	for( int i = 0; i < num_particles; i++) {
 
-		cout << "Before: particles[" << i << "].loc = (";
-		cout << particles[i].x << ", " << particles[i].y << ", " << particles[i].theta << " )" << endl;
+		//cout << "Before: particles[" << i << "].loc = (";
+		//cout << particles[i].x << ", " << particles[i].y << ", " << particles[i].theta << " )" << endl;
 
 		//Equations from Lesson 14 Section 7
 		//Calculate theta
@@ -111,8 +111,8 @@ void ParticleFilter::prediction(double delta_t, double std_pos[],
 		double x_f = x_0 + x_delta;
 		double y_f = y_0 + y_delta;
 
-		cout << "After: particles[" << i << "].loc = (";
-		cout << x_f << ", " << y_f << ", " << theta_f << " )" << endl;
+		//cout << "After: particles[" << i << "].loc = (";
+		//cout << x_f << ", " << y_f << ", " << theta_f << " )" << endl;
 
 		//Add noise to final pos values
 		normal_distribution<double> dist_x(x_f, std_x);
@@ -128,10 +128,10 @@ void ParticleFilter::prediction(double delta_t, double std_pos[],
 		particles[i].theta = sample_theta;
 
 
-		cout << "Noise: particles[" << i << "].loc = (";
-		cout << particles[i].x << ", " << particles[i].y << ", " << particles[i].theta << " )" << endl;
+		//cout << "Noise: particles[" << i << "].loc = (";
+		//cout << particles[i].x << ", " << particles[i].y << ", " << particles[i].theta << " )" << endl;
 
-		cout << endl;
+		//cout << endl;
 	}
 
 }
@@ -161,7 +161,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 	//   3.33
 	//   http://planning.cs.uiuc.edu/node99.html
 
-	////cout << "Begin updateWeights" << endl;
+	//////cout << "Begin updateWeights" << endl;
 
 	//Parse the noise parameter
 	double std_x = std_landmark[0];
@@ -175,13 +175,13 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 
 		Particle particle = particles[i];
 
-		cout << endl << endl;
-		cout << "particles[" << i << "]:" << endl;
-		cout << "id" << particles[i].id ;
-		cout << "\tx: " << particles[i].x ;
-		cout << "\ty: " << particles[i].y ;
-		cout << "\ttheta: " << particles[i].theta ;
-		cout << "\tweight: " << particles[i].weight << endl;
+		//cout << endl << endl;
+		//cout << "particles[" << i << "]:" << endl;
+		//cout << "id" << particles[i].id ;
+		//cout << "\tx: " << particles[i].x ;
+		//cout << "\ty: " << particles[i].y ;
+		//cout << "\ttheta: " << particles[i].theta ;
+		//cout << "\tweight: " << particles[i].weight << endl;
 
 		particles[i].associations.clear();
 		particles[i].associations.reserve(observations.size());
@@ -198,22 +198,25 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			observations[j].id = -1;
 			LandmarkObs observation = observations[j];
 
-			cout << endl;
-			cout << "\tobservations[" << j << "]:" << endl;
-			cout << "\tpre transformation:" ;
-			cout << "\tx: " << observation.x ;
-			cout << "\ty: " << observation.y << endl;
+			//cout << endl;
+			//cout << "\tobservations[" << j << "]:" << endl;
+			//cout << "\tpre transformation:" ;
+			//cout << "\tx: " << observation.x ;
+			//cout << "\ty: " << observation.y << endl;
 			
 			//Transform observation to map coordinate system
 			double cosine = cos(particle.theta);
 			double sine = sin(particle.theta);
 
-			observation.x = observation.x*cosine - observation.y*sine + particle.x;
-			observation.y = observation.x*sine + observation.y*cosine + particle.y;
+			double newx = observation.x*cosine - observation.y*sine + particle.x;
+			double newy = observation.x*sine + observation.y*cosine + particle.y;
 
-			cout << "\tpost transformation:" ;			
-			cout << "\tx: " << observation.x ;
-			cout << "\ty: " << observation.y << endl;
+			observation.x = newx;
+			observation.y = newy;
+
+			//cout << "\tpost transformation:" ;			
+			//cout << "\tx: " << observation.x ;
+			//cout << "\ty: " << observation.y << endl;
 			
 			//Declare variables to hold the closest observation and its distance
 
@@ -229,33 +232,33 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 
 				Map::single_landmark_s landmark = map_landmarks.landmark_list[l];
 			//for( Map::single_landmark_s landmark : map_landmap partrks.landmark_list ) {
-					//cout << endl;		
+					////cout << endl;		
 					
-					//cout << "\tid=" << landmark.id_i ;
-					//cout << "\t\tx=" << landmark.x_f ;
-					//cout << "\ty=" << landmark.y_f ;
+					////cout << "\tid=" << landmark.id_i ;
+					////cout << "\t\tx=" << landmark.x_f ;
+					////cout << "\ty=" << landmark.y_f ;
 					
-					//cout << "\tdist=" << observation_distance << endl;
+					////cout << "\tdist=" << observation_distance << endl;
 				
 
 				//Get the distance
 				double observation_distance = dist( landmark.x_f, landmark.y_f, observation.x, observation.y);
 
 				if ( observation_distance < sensor_range ) {
-					//cout << endl;		
+					////cout << endl;		
+					////cout << "\t\tlandmark [" << l << "]:" << endl;
 					//cout << "\t\tlandmark [" << l << "]:" << endl;
-					cout << "\t\tlandmark [" << l << "]:" << endl;
-					cout << "\t\tid=" << landmark.id_i ;
-					cout << "\tx=" << landmark.x_f ;
-					cout << "\ty=" << landmark.y_f ;
+					//cout << "\t\tid=" << landmark.id_i ;
+					//cout << "\tx=" << landmark.x_f ;
+					//cout << "\ty=" << landmark.y_f ;
 					
-					cout << "\tdist=" << observation_distance ;
-					//cout << "\tmindist=" << min_dist ;
+					//cout << "\tdist=" << observation_distance ;
+					////cout << "\tmindist=" << min_dist ;
 
 					//Test to see if this landmark is the new closest and associate it if so.
 					if( observation_distance < min_dist ) {
 
-						cout << "\t*"; 
+						//cout << "\t*"; 
 
 						//This is the new min
 						min_dist = observation_distance;
@@ -269,11 +272,11 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 
 
 					}
-					cout << endl;
+					//cout << endl;
 				}
 
 			}
-			////cout << "hey" << predictions.size() << endl;
+			//////cout << "hey" << predictions.size() << endl;
 			//Add the closest observation to the predictions
 			predictions.push_back( min_observation );
 
@@ -285,7 +288,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 		//Initialize Particle's weight with the multiplicative identity
 		particles[i].weight = 1.0;
 
-		//cout << predictions.size() << endl;
+		////cout << predictions.size() << endl;
 		particles[i].associations.clear();
 		particles[i].sense_x.clear();
 		particles[i].sense_y.clear();
@@ -296,42 +299,42 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			//Get the observation (already in map coords)
 			LandmarkObs prediction = predictions[j];
 
-			cout << endl;
-			cout << "\tprediction[" << j << "]:" << endl;
-			cout << "\tpost transformation:" ;	
-			cout << "\tid: " << prediction.id ;		
-			cout << "\tx: " << prediction.x ;
-			cout << "\ty: " << prediction.y << endl;
+			//cout << endl;
+			//cout << "\tprediction[" << j << "]:" << endl;
+			//cout << "\tpost transformation:" ;	
+			//cout << "\tid: " << prediction.id ;		
+			//cout << "\tx: " << prediction.x ;
+			//cout << "\ty: " << prediction.y << endl;
 
 			//And its associated landmark
 			//Technically I should iterate and esnure prediciton.id == landmark.id_i
 			//But this works.
 			Map::single_landmark_s landmark = map_landmarks.landmark_list[prediction.id];
 
-			cout << endl;
-			cout << "\tlandmark [" << prediction.id << "]:" << endl;
-			cout << "\tid=" << landmark.id_i ;
-			cout << "\tx=" << landmark.x_f ;
-			cout << "\ty=" << landmark.y_f << endl;
+			//cout << endl;
+			//cout << "\tlandmark [" << prediction.id << "]:" << endl;
+			//cout << "\tid=" << landmark.id_i ;
+			//cout << "\tx=" << landmark.x_f ;
+			//cout << "\ty=" << landmark.y_f << endl;
 
-			//cout << "\t" << landmark.id_i << " " << prediction.id << " " << particles[i].associations[j];
+			////cout << "\t" << landmark.id_i << " " << prediction.id << " " << particles[i].associations[j];
 			
 			//Calculate the weight.
 			double delta_x = prediction.x - landmark.x_f; 
 			double delta_y = prediction.y - landmark.y_f; 
-			////////cout << "Delta\tX:" << delta_x << "\tY: " << delta_y << endl;
+			//////////cout << "Delta\tX:" << delta_x << "\tY: " << delta_y << endl;
 			double exponent_term_x = pow(delta_x,2)/(2.0*pow(std_x,2));
 			double exponent_term_y = pow(delta_y,2)/(2.0*pow(std_y,2));
-			////////cout << "exponent_term\tX:" << exponent_term_x << "\tY: " << exponent_term_y << endl;
+			//////////cout << "exponent_term\tX:" << exponent_term_x << "\tY: " << exponent_term_y << endl;
 			double exponent_term = -1.0*(exponent_term_x+exponent_term_y);
-			////////cout << "exponent_term " << exponent_term << endl;
+			//////////cout << "exponent_term " << exponent_term << endl;
 			double exponent = exp(exponent_term);
-			////////cout << "exponent " << exponent << endl;
+			//////////cout << "exponent " << exponent << endl;
 			double constant = 1.0/(2.0*M_PI*std_x*std_y);
-			////////cout << "constant " << constant << endl;
+			//////////cout << "constant " << constant << endl;
 			double observation_weight = constant * exponent;
-			cout << endl;
-			cout << "\tobservation_weight: " << observation_weight;
+			//cout << endl;
+			//cout << "\tobservation_weight: " << observation_weight;
 
 			//Multiply it into the particle's total weight.
 			particles[i].weight *= observation_weight;
@@ -344,7 +347,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 
 		}
 
-		cout << "\tparticle weight: " << particles[i].weight << endl;
+		//cout << "\tparticle weight: " << particles[i].weight << endl;
 		
 	}
 
@@ -359,7 +362,7 @@ void ParticleFilter::resample() {
 	//weights.reserve(num_particles);
 
 	for( int i = 0 ; i < num_particles ; i++ ) {
-		//cout << i << " " << weights[i] << endl;
+		////cout << i << " " << weights[i] << endl;
 		weights.push_back( particles[i].weight );
 	}
 
@@ -372,11 +375,11 @@ void ParticleFilter::resample() {
 	resampled_particles.clear();
 	resampled_particles.reserve(num_particles);
 
-	cout << "SAMPLING (out of) " << weights.size() << endl;
+	//cout << "SAMPLING (out of) " << weights.size() << endl;
 	for( int i = 0; i < num_particles; i++ ) {
 		int j = distribution(gen);
 		//j is always 0
-		cout << "\t" << i << " " << j << endl;
+		//cout << "\t" << i << " " << j << endl;
 		Particle random_particle = particles[j];
 		random_particle.id = i;
 		resampled_particles.push_back( random_particle ) ;
@@ -387,10 +390,10 @@ void ParticleFilter::resample() {
 
 	// for( int i = 0 ; i < num_particles ; i++ ) {
 	// 	//particles[i].weight = weights[i];
-	// 	//cout << "particles[" << i << "].weight = " << particles[i].weight << " == " << weights[i] << endl;
+	// 	////cout << "particles[" << i << "].weight = " << particles[i].weight << " == " << weights[i] << endl;
 	// //}
 
-	////cout << "End resample" << endl;
+	//////cout << "End resample" << endl;
 
 }
 

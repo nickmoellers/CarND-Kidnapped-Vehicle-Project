@@ -126,7 +126,7 @@ int main()
 		  for (int i = 0; i < num_particles; ++i) {
         //Particle particle = particles[i];
         //cout << "Particle\tX:" << particle.x << "\tY: " << particle.y << endl;
-          cout << "particles[" << i << "].associations = " << pf.getAssociations(particles[i]) << endl;
+          //cout << "particles[" << i << "].associations = " << pf.getAssociations(particles[i]) << endl;
 			if (particles[i].weight > highest_weight) {
 				highest_weight = particles[i].weight;
 				best_particle = particles[i];
@@ -141,7 +141,7 @@ int main()
           msgJson["best_particle_y"] = best_particle.y;
           msgJson["best_particle_theta"] = best_particle.theta;
 
-          cout << "best particle.associations = " << pf.getAssociations(best_particle) << endl;
+          //cout << "best particle.associations = " << pf.getAssociations(best_particle) << endl;
           //Optional message data used for debugging particle's sensing and associations
           msgJson["best_particle_associations"] = pf.getAssociations(best_particle);
           msgJson["best_particle_sense_x"] = pf.getSenseX(best_particle);
